@@ -3,65 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>未喝新飲料店紀錄手札</title>
+    <title>我的飲料足跡地圖日誌</title>
     <style>
-        /* 迎合探險、尋寶感設計的視覺風格 */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             line-height: 1.5; 
             padding: 15px; 
-            background-color: #f0f4f8; 
-            color: #334155;
+            background-color: #f5f5f3; 
+            color: #333;
         }
-        /* 願望清單卡片外殼 */
         .container { 
             max-width: 450px; 
-            margin: 30px auto; 
+            margin: 20px auto; 
             background: #ffffff; 
-            padding: 30px; 
+            padding: 25px; 
             border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(51, 65, 85, 0.05); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
         }
-        /* 充滿目標感的藍色調標題 */
         h2 { 
             text-align: center;
-            color: #1e3a8a; 
+            color: #2c5282; 
             margin-top: 0;
             margin-bottom: 25px;
             padding-bottom: 12px;
-            border-bottom: 2px dashed #cbd5e1; 
-            font-size: 20px;
+            border-bottom: 2px dashed #e2e8f0; 
+            font-size: 22px;
         }
         .form-group { 
-            margin-bottom: 20px; 
+            margin-bottom: 18px; 
         }
         label { 
             display: block; 
             font-weight: bold; 
-            margin-bottom: 8px; 
-            color: #475569; 
-            font-size: 15px;
+            margin-bottom: 6px; 
+            color: #4a5568; 
+            font-size: 14px;
         }
-        /* 兩大欄位全面改成自由自由輸入 */
         input[type="text"] { 
             width: 100%; 
-            padding: 14px; 
-            border: 1px solid #cbd5e1; 
+            padding: 12px; 
+            border: 1px solid #cbd5e0; 
             border-radius: 8px; 
             box-sizing: border-box; 
             font-size: 16px;
-            background-color: #fff;
-            transition: border-color 0.2s;
         }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background: #f7fafc;
+            border: 1px dashed #cbd5e0;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
-        /* 送出目標的按鈕 */
         button { 
             width: 100%; 
-            background: #2563eb; 
+            background: #2c5282; 
             color: white; 
             border: none; 
             padding: 15px; 
@@ -70,48 +66,71 @@
             border-radius: 8px; 
             font-size: 16px; 
             margin-top: 10px; 
-            transition: background-color 0.2s;
         }
         button:hover { 
-            background: #1d4ed8; 
+            background: #1a365d; 
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🎯 沒喝過的新飲料店・踩點清單</h2>
+    <h2>📸 飲料開箱足跡 × 地圖日誌</h2>
     
     <div class="form-group">
-        <label for="storeName">🏪 新飲料店名稱 / 預計挑戰品項</label>
-        <input type="text" id="storeName" placeholder="例如：得正（焙烏龍）、某某茶攤（綠豆沙）">
+        <label for="storeName">🏪 飲料店品牌與品項</label>
+        <input type="text" id="storeName" placeholder="例如：得正 - 焙烏龍鮮奶">
     </div>
 
     <div class="form-group">
-        <label for="location">📍 預計踩點位置 / 在哪看到的？</label>
-        <input type="text" id="location" placeholder="例如：一中街、勤美草悟道、台北公館">
+        <label for="location">📍 購買的精確位置 / 分店</label>
+        <input type="text" id="location" placeholder="建議填寫完整，例如：台中市西區勤美店">
+    </div>
+
+    <div class="form-group">
+        <label for="photo">📷 上傳飲料美照</label>
+        <input type="file" id="photo" accept="image/*">
     </div>
     
-    <button onclick="submitOrder()">加入我的口袋名單</button>
+    <button onclick="submitOrder()">紀錄足跡並生成地圖</button>
 </div>
 
 <script>
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
     async function submitOrder() {
         const storeName = document.getElementById('storeName').value.trim();
         const location = document.getElementById('location').value.trim();
+        const photoFile = document.getElementById('photo').files[0];
 
-        // 簡單驗證：確保兩欄都有填，以後才好找
         if (!storeName || !location) {
-            alert("請同時填入『店名』與『地點』，這份獵奇清單才完整喔！");
+            alert("店名和位置都要填寫，地圖才能精確定位喔！");
             return;
+        }
+
+        // 自動生成 Google 地圖搜尋連結
+        const mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(storeName + " " + location);
+
+        let photoBase64 = "";
+        if (photoFile) {
+            photoBase64 = await getBase64(photoFile);
         }
 
         const orderData = {
             store: storeName,
-            loc: location
+            loc: location,
+            map: mapUrl, // 傳送地圖連結給後端
+            photo: photoBase64
         };
 
-        // ⚠️ 請記得將下方的網址替換為你在 Google Apps Script 部署得到的網頁應用程式網址
+        // ⚠️ 請記得更換為你的 Apps Script 網址
         const scriptURL = 'YOUR_DEPLOY_URL'; 
 
         try {
@@ -121,16 +140,16 @@
             });
 
             if (response.ok) {
-                alert("📌 成功收錄！已存入未喝飲料庫，等你去解鎖。");
-                // 成功後清空所有格子，方便隨時記下一間
+                alert("✨ 紀錄成功！地圖連動已同步寫入 Excel 囉！");
                 document.getElementById('storeName').value = "";
                 document.getElementById('location').value = "";
+                document.getElementById('photo').value = "";
             } else {
-                alert("儲存失敗，請確認 Apps Script 後台設定。");
+                alert("寫入失敗，請檢查 Apps Script 設定。");
             }
         } catch (error) {
             console.error('錯誤:', error.message);
-            alert("連線失敗！請檢查網址是否有正確替換，或網路是否斷線。");
+            alert("連線失敗，請檢查網址。");
         }
     }
 </script>
