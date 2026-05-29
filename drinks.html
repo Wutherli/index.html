@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的飲料足跡紀錄</title>
+    <style>
+        /* 針對手機瀏覽優化的極簡風格 */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            line-height: 1.5; 
+            padding: 15px; 
+            background-color: #faf8f5; 
+            color: #444;
+        }
+        /* 日誌風格的卡片 */
+        .container { 
+            max-width: 450px; 
+            margin: 20px auto; 
+            background: #ffffff; 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04); 
+        }
+        /* 溫暖文青風標題 */
+        h2 { 
+            text-align: center;
+            color: #8c6239; 
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #e6dfd5; 
+            font-size: 22px;
+        }
+        .form-group { 
+            margin-bottom: 18px; 
+        }
+        label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 6px; 
+            color: #6e543c; 
+            font-size: 14px;
+        }
+        /* 下拉選單與輸入框（手機上更好點擊的高度） */
+        input[type="text"], select { 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid #dcd6cd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px;
+            background-color: #fff;
+            -webkit-appearance: none; /* 讓 iOS 上的外觀一致 */
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #8c6239;
+            box-shadow: 0 0 0 3px rgba(140, 98, 57, 0.1);
+        }
+        /* 大顆、好按的個人紀錄按鈕 */
+        button { 
+            width: 100%; 
+            background: #8c6239; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            transition: background-color 0.2s;
+        }
+        button:hover { 
+            background: #6f4e2c; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>✍️ 我的飲料足跡隨手記</h2>
+    
+    <div class="form-group">
+        <label for="storeName">🏪 飲料店品牌</label>
+        <select id="storeName">
+            <option value="五十嵐">五十嵐</option>
+            <option value="麻古茶坊">麻古茶坊</option>
+            <option value="可不可熟成紅茶">可不可熟成紅茶</option>
+            <option value="迷客夏">迷客夏</option>
+            <option value="五桐號">五桐號</option>
+            <option value="清心福全">清心福全</option>
+            <option value="得正">得正</option>
+            <option value="茶湯會">茶湯會</option>
+            <option value="當地特色小店 / 攤販">當地特色小店 / 攤販</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="location">📍 出遊打卡地點</label>
+        <input type="text" id="location" placeholder="例如：勤美綠園道、一中街、駁二特區">
+    </div>
+    
+    <button onclick="submitOrder()">寫入我的飲料足跡</button>
+</div>
+
+<script>
+    async function submitOrder() {
+        const storeName = document.getElementById('storeName').value;
+        const location = document.getElementById('location').value.trim();
+
+        // 檢查有沒有填寫地點
+        if (!location) {
+            alert("請輸入你目前在哪個景點或地方喝這杯飲料的喔！");
+            return;
+        }
+
+        const orderData = {
+            store: storeName,
+            loc: location
+        };
+
+        // ⚠️ 請記得將下方的網址替換為你在 Google Apps Script 部署得到的網頁應用程式網址
+        const scriptURL = 'YOUR_DEPLOY_URL'; 
+
+        try {
+            const response = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(orderData)
+            });
+
+            if (response.ok) {
+                alert("✨ 紀錄成功！已存入你的飲料足跡庫。");
+                // 成功後清空地點，方便到下一個景點再記錄
+                document.getElementById('location').value = "";
+            } else {
+                alert("寫入失敗，請確認 Apps Script 是否正常運作。");
+            }
+        } catch (error) {
+            console.error('錯誤:', error.message);
+            alert("連線失敗！請檢查網址是否正確設定，或網路是否順暢。");
+        }
+    }
+</script>
+
+</body>
+</html>
